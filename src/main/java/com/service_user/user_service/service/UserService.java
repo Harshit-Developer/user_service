@@ -8,7 +8,7 @@ import com.service_user.user_service.entity.User;
 
 public interface UserService {
 
-	public ResponseEntity<String> userSignUp(User user);
-	public UserDto login(Login login);
+	public UserDto userSignUp(User user);
+	public User login(Login login);
 	
 }

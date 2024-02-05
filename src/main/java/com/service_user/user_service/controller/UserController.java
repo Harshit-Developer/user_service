@@ -27,20 +27,21 @@ public class UserController {
 	
 	// This function recieves RegisterAuthRequest type from the auth service
 	@PostMapping("/signup")
-	public ResponseEntity<String> userSignUp(@RequestBody User user){
-		logger.info("Inside SignUp Controller of UserController" + user.toString());
-		ResponseEntity<String> signUpresponse  = userService.userSignUp(user);
+	public UserDto userSignUp(@RequestBody User user){
+		logger.info("Request recieved by SignUp in UserController " + user.toString());
+		UserDto signUpresponse  = userService.userSignUp(user);
+		
+		logger.info("Request executed by SignUp in UserController with response" + signUpresponse.toString());
 		return  signUpresponse;
 	}
 	
 	@PostMapping("/login")
-	public ResponseEntity<UserDto> login(@RequestBody Login login){
-		UserDto savedUser = userService.login(login);
-		if(savedUser==null) {
-			
-			return new ResponseEntity<>(null,HttpStatus.INTERNAL_SERVER_ERROR);
-		}
-		return new ResponseEntity<>(savedUser,HttpStatus.CREATED);
+	public User login(@RequestBody Login login){
+		logger.info("Request recieved by login in UserController " + login.toString());
+		User loggedUser = userService.login(login);
+		
+		logger.info("Request executed by login in UserController with response" + loggedUser.toString());
+		return loggedUser;
 	}
 	 
 	

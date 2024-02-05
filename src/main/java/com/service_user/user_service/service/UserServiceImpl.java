@@ -11,6 +11,7 @@ import com.service_user.user_service.controller.UserController;
 import com.service_user.user_service.dto.UserDto;
 import com.service_user.user_service.entity.Login;
 import com.service_user.user_service.entity.User;
+import com.service_user.user_service.mapper.UserDtoMapper;
 //import com.service_user.user_service.mapper.UserDtoMapper;
 import com.service_user.user_service.repository.UserRepository;
 
@@ -25,42 +26,54 @@ public class UserServiceImpl implements UserService{
 	private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
 	
 	@Override
-	public  ResponseEntity<String> userSignUp(User user) {
+	public  UserDto userSignUp(User user) {
 		try {
-			logger.info("Inside try of  userSignUp Service of UserController");
+			logger.info("Checking if the email exist in DB");
 			if (userRepository.existsByEmail(user.getEmail())) {
 	            throw new IllegalArgumentException("Email is already registered");
 	        }
-
+			
+			logger.info("Trying to register the User");
 	        userRepository.save(user);
 
+	        logger.info("User Registered Successfully");
 			User savedUser = userRepository.save(user);
-			return  ResponseEntity.ok("User Created Successfully");		}
-		catch(IllegalArgumentException e) {
-			logger.info("Inside catch of  userSignUp Service of UserController"+e.getMessage());
-			return  ResponseEntity.status(400).body("User Already exists");
+			UserDto userDto = UserDtoMapper.convertToDto(savedUser);
+			
+			logger.info("UserSignUp Executed Successfully with response "+userDto.toString());
+			return userDto;
+			
+			}
+		catch (IllegalArgumentException e) {
+			logger.info("Error occured while registering user. "+e.getMessage());
+			return  null;
+		} catch (Exception e) {
+			logger.info("Error occured while registering user. "+e.getMessage());
+			return  null;
 		}
 	}
 	// Comment Added.
 
 	@Override
-	public UserDto login(Login login) {
+	public User login(Login login) {
         
-//	    Optional<User> result = userRepository.findByEmail(login.getEmail());
-//	   
-//	    if(!result.get().getEmail().equals(login.getEmail())) {
-//	    	return null;
-//	    }
-//	    UserDto retrievedUserDto = null;
-//	    if(result.isPresent()) {
-//	        User retrievedUser = result.get();
-//	        //retrievedUserDto = UserDtoMapper.convertToDto(retrievedUser);
-//	    }
-//	    else {
-//	        // we didn't find the user
-//	        throw new RuntimeException("Did not find userId: " + retrievedUserDto);
-//	    }
-    return null;
+		try {
+			Optional<User> result = userRepository.findByEmail(login.getEmail());
+			if(!result.get().getEmail().equals(login.getEmail())) {
+				throw new IllegalArgumentException("Invalid username or password");
+		    }
+			
+			User loggedUser = result.get();
+			logger.info("Userlogin Executed Successfully with response "+loggedUser.toString());
+			return loggedUser;
+		}
+		catch (IllegalArgumentException e) {
+			logger.info("Error occured while logging user "+e.getMessage());
+			return  null;
+		} catch (Exception e) {
+			logger.info("Error occured while logging user. "+e.getMessage());
+			return  null;
+		}
 	}
 
 }
